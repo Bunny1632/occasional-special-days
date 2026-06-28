@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What's Special Today</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;700;800&family=Special+Elite&family=Inter:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0F2622;
+    --ink-2:#13302B;
+    --paper:#F4ECDA;
+    --paper-shade:#E8DBB8;
+    --stamp-red:#9C3A2E;
+    --mustard:#D9A441;
+    --moss:#4F8A73;
+    --saffron:#D97A33;
+    --slate:#9FB0AA;
+    --cream:#F4ECDA;
+    --line: rgba(244,236,218,0.16);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse 120% 80% at 50% -10%, rgba(79,138,115,0.18), transparent 60%),
+      linear-gradient(180deg, var(--ink-2), var(--ink) 60%);
+    color:var(--cream);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+  .wrap{
+    max-width:640px;
+    margin:0 auto;
+    padding:36px 20px 64px;
+  }
+  .eyebrow{
+    font-family:'Special Elite',monospace;
+    letter-spacing:0.28em;
+    text-transform:uppercase;
+    font-size:11.5px;
+    color:var(--mustard);
+    text-align:center;
+    margin-bottom:22px;
+  }
+
+  /* ---- Postmark ---- */
+  .postmark-stage{
+    display:flex;
+    justify-content:center;
+    margin-bottom:8px;
+  }
+  .postmark{
+    position:relative;
+    width:236px;
+    height:236px;
+    transform:rotate(-6deg);
+  }
+  .postmark svg{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+  }
+  .postmark-ring{
+    fill:none;
+    stroke:var(--mustard);
+    opacity:0.85;
+  }
+  .postmark-ring.outer{stroke-width:2.5;}
+  .postmark-ring.inner{stroke-width:1.4; stroke-dasharray:3 4;}
+  .postmark-arc-text{
+    font-family:'Special Elite',monospace;
+    font-size:11.5px;
+    letter-spacing:0.16em;
+    fill:var(--mustard);
+  }
+  .postmark-center{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+  }
+  .postmark-day{
+    font-family:'Big Shoulders Display',sans-serif;
+    font-weight:800;
+    font-size:84px;
+    line-height:0.85;
+    color:var(--cream);
+  }
+  .postmark-month{
+    font-family:'Special Elite',monospace;
+    font-size:13px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--mustard);
+    margin-top:2px;
+  }
+  .postmark-grain{
+    position:absolute;
+    inset:0;
+    border-radius:50%;
+    background-image:radial-gradient(rgba(217,164,65,0.5) 0.6px, transparent 0.7px);
+    background-size:7px 7px;
+    mix-blend-mode:overlay;
+    opacity:0.5;
+    pointer-events:none;
+  }
+
+  /* ---- Day-of-year strip ---- */
+  .strip{
+    display:flex;
+    justify-content:center;
+    gap:18px;
+    flex-wrap:wrap;
+    font-family:'Special Elite',monospace;
+    font-size:11.5px;
+    color:var(--slate);
+    letter-spacing:0.04em;
+    margin:22px 0 30px;
+    text-align:center;
+  }
+  .strip b{color:var(--cream); font-weight:400;}
+
+  /* ---- Controls ---- */
+  .controls{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+  }
+  .btn{
+    appearance:none;
+    border:1px solid var(--line);
+    background:rgba(244,236,218,0.04);
+    color:var(--cream);
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    padding:9px 14px;
+    border-radius:7px;
+    cursor:pointer;
+    transition:background .15s ease, transform .1s ease;
+  }
+  .btn:hover{background:rgba(244,236,218,0.1);}
+  .btn:active{transform:scale(0.97);}
+  .btn:focus-visible{outline:2px solid var(--mustard); outline-offset:2px;}
+  .btn-icon{font-family:'Inter',sans-serif; font-size:16px; padding:9px 13px;}
+  #dateInput{
+    appearance:none;
+    border:1px solid var(--line);
+    background:rgba(244,236,218,0.04);
+    color:var(--cream);
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    padding:8px 10px;
+    border-radius:7px;
+    color-scheme: dark;
+  }
+  #dateInput:focus-visible{outline:2px solid var(--mustard); outline-offset:2px;}
+  #todayBtn{
+    background:var(--mustard);
+    color:#241804;
+    border-color:transparent;
+    font-weight:600;
+    display:none;
+  }
+  #todayBtn:hover{background:#e3b35c;}
+
+  /* ---- Filter chips ---- */
+  .chips{
+    display:flex;
+    justify-content:center;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-bottom:30px;
+  }
+  .chip{
+    appearance:none;
+    border:1px solid var(--line);
+    background:transparent;
+    color:var(--slate);
+    font-size:12.5px;
+    letter-spacing:0.02em;
+    padding:6px 12px;
+    border-radius:100px;
+    cursor:pointer;
+    font-family:'Inter',sans-serif;
+    transition:all .15s ease;
+  }
+  .chip:focus-visible{outline:2px solid var(--mustard); outline-offset:2px;}
+  .chip[data-active="true"]{color:var(--ink); font-weight:600;}
+  .chip[data-cat="UN"][data-active="true"]{background:var(--moss); border-color:var(--moss); color:#0c1f17;}
+  .chip[data-cat="IN"][data-active="true"]{background:var(--saffron); border-color:var(--saffron); color:#26150a;}
+  .chip[data-cat="CU"][data-active="true"]{background:var(--stamp-red); border-color:var(--stamp-red); color:var(--paper);}
+  .chip[data-cat="FU"][data-active="true"]{background:var(--mustard); border-color:var(--mustard); color:#241804;}
+  .chip[data-cat="ALL"][data-active="true"]{background:var(--cream); border-color:var(--cream); color:var(--ink);}
+
+  /* ---- Cards ---- */
+  .cards{display:flex; flex-direction:column; gap:14px;}
+  .card{
+    position:relative;
+    background:var(--paper);
+    color:#2A2014;
+    border-radius:10px;
+    padding:20px 20px 18px;
+    box-shadow:0 10px 24px rgba(0,0,0,0.28);
+  }
+  .card::before{
+    content:"";
+    position:absolute;
+    top:0; left:18px; right:18px;
+    height:1px;
+    background-image:radial-gradient(circle, var(--ink) 1.6px, transparent 1.7px);
+    background-size:11px 1px;
+    background-repeat:repeat-x;
+    transform:translateY(-1px);
+  }
+  .card-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:12px;
+  }
+  .card-name{
+    font-family:'Big Shoulders Display',sans-serif;
+    font-weight:700;
+    font-size:22px;
+    line-height:1.15;
+  }
+  .tag{
+    flex-shrink:0;
+    font-family:'Special Elite',monospace;
+    font-size:10px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    padding:4px 9px;
+    border-radius:100px;
+    color:var(--paper);
+    margin-top:3px;
+  }
+  .tag.UN{background:var(--moss); color:#eafff5;}
+  .tag.IN{background:var(--saffron);}
+  .tag.CU{background:var(--stamp-red);}
+  .tag.FU{background:var(--mustard); color:#241804;}
+  .card-desc{
+    margin-top:8px;
+    font-size:14px;
+    line-height:1.5;
+    color:#4A3F2C;
+  }
+  .empty-card{
+    background:rgba(244,236,218,0.05);
+    border:1px dashed var(--line);
+    border-radius:10px;
+    padding:26px 20px;
+    text-align:center;
+    color:var(--slate);
+    font-size:14.5px;
+    line-height:1.6;
+  }
+  .empty-card b{color:var(--cream);}
+
+  footer{
+    margin-top:40px;
+    text-align:center;
+    font-size:12px;
+    color:var(--slate);
+    line-height:1.7;
+  }
+  footer span{display:block;}
+
+  @media (max-width:420px){
+    .postmark{width:200px; height:200px;}
+    .postmark-day{font-size:70px;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow">What's special today</div>
+
+  <div class="postmark-stage">
+    <div class="postmark" id="postmark">
+      <svg viewBox="0 0 236 236" aria-hidden="true">
+        <circle class="postmark-ring outer" cx="118" cy="118" r="112"></circle>
+        <circle class="postmark-ring inner" cx="118" cy="118" r="98"></circle>
+        <defs>
+          <path id="arcTop" d="M 28,118 A 90,90 0 1 1 208,118" />
+          <path id="arcBottom" d="M 208,128 A 90,90 0 1 1 28,128" />
+        </defs>
+        <text class="postmark-arc-text" text-anchor="middle">
+          <textPath href="#arcTop" startOffset="50%" id="arcTopText">SPECIAL DAY</textPath>
+        </text>
+        <text class="postmark-arc-text" text-anchor="middle">
+          <textPath href="#arcBottom" startOffset="50%" id="arcBottomText">CLAUDE ALMANAC</textPath>
+        </text>
+      </svg>
+      <div class="postmark-grain"></div>
+      <div class="postmark-center">
+        <div class="postmark-day" id="dayNum">28</div>
+        <div class="postmark-month" id="monthYear">JUN 2026</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="strip" id="yearStrip">Day <b>1</b> of <b>365</b> &nbsp;·&nbsp; <b>0</b> days left in the year</div>
+
+  <div class="controls">
+    <button class="btn btn-icon" id="prevBtn" aria-label="Previous day">‹</button>
+    <input type="date" id="dateInput" aria-label="Jump to date">
+    <button class="btn btn-icon" id="nextBtn" aria-label="Next day">›</button>
+    <button class="btn" id="todayBtn">Today</button>
+  </div>
+
+  <div class="chips" id="chips">
+    <button class="chip" data-cat="ALL" data-active="true">All</button>
+    <button class="chip" data-cat="UN" data-active="true">International</button>
+    <button class="chip" data-cat="IN" data-active="true">India</button>
+    <button class="chip" data-cat="CU" data-active="true">Cultural</button>
+    <button class="chip" data-cat="FU" data-active="true">Fun</button>
+  </div>
+
+  <div class="cards" id="cards"></div>
+
+  <footer>
+    <span id="coverageNote">Curated from UN observance lists, national calendars and well-known cultural days.</span>
+    <span>Don't see a day you know? Ask Claude to add it to the almanac.</span>
+  </footer>
+
+</div>
+
+<script>
+// ============== DATASET ==============
+const FIXED_DAYS = {
+"01-01": [{n:"New Year's Day",c:"CU"},{n:"Public Domain Day",c:"FU",d:"The day each year when that year's batch of copyrights expires and works enter the public domain."}],
+"01-04": [{n:"World Braille Day",c:"UN",d:"Marks Louis Braille's birthday and raises awareness of accessibility for the blind and visually impaired."}],
+"01-12": [{n:"National Youth Day",c:"IN",d:"India observes Swami Vivekananda's birthday by celebrating youth energy and ideals."}],
+"01-15": [{n:"Makar Sankranti / Pongal",c:"CU",d:"Harvest festival marking the sun's transition into Capricorn, celebrated across India under regional names."}],
+"01-21": [{n:"National Hugging Day",c:"FU"}],
+"01-23": [{n:"Parakram Diwas",c:"IN",d:"Birth anniversary of Netaji Subhas Chandra Bose."}],
+"01-24": [{n:"International Day of Education",c:"UN",d:"Highlights education's role in peace and development."}],
+"01-25": [{n:"National Voters' Day",c:"IN"},{n:"National Tourism Day",c:"IN"}],
+"01-26": [{n:"Republic Day",c:"IN",d:"Commemorates the Constitution of India coming into force in 1950."},{n:"International Customs Day",c:"UN"}],
+"01-27": [{n:"International Holocaust Remembrance Day",c:"UN",d:"Marks the liberation of Auschwitz-Birkenau and honours victims of the Holocaust."}],
+"01-29": [{n:"National Puzzle Day",c:"FU"}],
+"01-30": [{n:"Martyrs' Day",c:"IN",d:"Anniversary of Mahatma Gandhi's assassination in 1948."}],
+"01-31": [{n:"National Gorilla Suit Day",c:"FU"}],
+"02-04": [{n:"World Cancer Day",c:"UN"},{n:"International Day of Human Fraternity",c:"UN"}],
+"02-06": [{n:"International Day of Zero Tolerance to Female Genital Mutilation",c:"UN"}],
+"02-10": [{n:"World Pulses Day",c:"UN",d:"Celebrates beans, lentils and chickpeas for their role in nutrition and sustainable farming."}],
+"02-11": [{n:"International Day of Women and Girls in Science",c:"UN"}],
+"02-13": [{n:"World Radio Day",c:"UN"}],
+"02-14": [{n:"Valentine's Day",c:"CU"}],
+"02-15": [{n:"Singles Awareness Day",c:"FU"}],
+"02-20": [{n:"World Day of Social Justice",c:"UN"},{n:"International Pipe Smoking Day",c:"FU"}],
+"02-21": [{n:"International Mother Language Day",c:"UN",d:"Promotes linguistic and cultural diversity; first proposed by Bangladesh."}],
+"02-27": [{n:"National Cigar Day",c:"FU"}],
+"02-28": [{n:"National Science Day",c:"IN",d:"Marks C.V. Raman's discovery of the Raman Effect in 1928."}],
+"03-01": [{n:"Zero Discrimination Day",c:"UN"}],
+"03-03": [{n:"World Wildlife Day",c:"UN"}],
+"03-04": [{n:"National Safety Day",c:"IN"}],
+"03-08": [{n:"International Women's Day",c:"UN"}],
+"03-10": [{n:"Mario Day",c:"FU",d:"\"MAR10\" — a wordplay date adopted by Nintendo fans to celebrate Mario."}],
+"03-14": [{n:"Pi Day",c:"FU",d:"3.14 — celebrates the mathematical constant π."},{n:"White Day",c:"CU",d:"A day in Japan and other East Asian countries when those who received Valentine's gifts give gifts in return."}],
+"03-15": [{n:"World Consumer Rights Day",c:"UN"}],
+"03-20": [{n:"International Day of Happiness",c:"UN"}],
+"03-21": [{n:"International Day for the Elimination of Racial Discrimination",c:"UN"},{n:"World Poetry Day",c:"UN"},{n:"World Down Syndrome Day",c:"UN"},{n:"International Day of Forests",c:"UN"},{n:"World Day for Glaciers",c:"UN"}],
+"03-22": [{n:"World Water Day",c:"UN"}],
+"03-23": [{n:"World Meteorological Day",c:"UN"}],
+"03-24": [{n:"World Tuberculosis Day",c:"UN"}],
+"03-25": [{n:"International Day of Remembrance of the Victims of Slavery and the Transatlantic Slave Trade",c:"UN"}],
+"03-27": [{n:"World Theatre Day",c:"FU"}],
+"03-31": [{n:"World Backup Day",c:"FU",d:"A nudge to back up your data before April Fools' Day pranks strike."},{n:"International Transgender Day of Visibility",c:"CU"}],
+"04-01": [{n:"April Fools' Day",c:"CU"}],
+"04-02": [{n:"World Autism Awareness Day",c:"UN"}],
+"04-04": [{n:"International Day for Mine Awareness and Assistance in Mine Action",c:"UN"}],
+"04-05": [{n:"International Day of Conscience",c:"UN"}],
+"04-06": [{n:"International Day of Sport for Development and Peace",c:"UN"}],
+"04-07": [{n:"World Health Day",c:"UN"},{n:"International Day of Reflection on the 1994 Genocide in Rwanda",c:"UN"}],
+"04-12": [{n:"International Day of Human Space Flight",c:"UN",d:"Marks Yuri Gagarin's first human spaceflight in 1961."}],
+"04-18": [{n:"International Day for Monuments and Sites",c:"UN"}],
+"04-19": [{n:"Bicycle Day",c:"FU",d:"Marks Albert Hofmann's famous 1943 bicycle ride home after dosing himself with LSD."}],
+"04-20": [{n:"420 (Cannabis Culture Day)",c:"FU"}],
+"04-21": [{n:"World Creativity and Innovation Day",c:"UN"}],
+"04-22": [{n:"Earth Day",c:"CU"}],
+"04-23": [{n:"World Book and Copyright Day",c:"UN"}],
+"04-25": [{n:"World Malaria Day",c:"UN"},{n:"International Delegate's Day",c:"UN"},{n:"Day of the Tree",c:"UN"}],
+"04-26": [{n:"World Intellectual Property Day",c:"UN"},{n:"International Chernobyl Disaster Remembrance Day",c:"UN"}],
+"04-28": [{n:"World Day for Safety and Health at Work",c:"UN"}],
+"04-29": [{n:"International Dance Day",c:"UN"}],
+"04-30": [{n:"International Jazz Day",c:"UN"}],
+"05-01": [{n:"International Workers' Day",c:"CU"}],
+"05-02": [{n:"World Tuna Day",c:"UN"}],
+"05-03": [{n:"World Press Freedom Day",c:"UN"}],
+"05-04": [{n:"Star Wars Day",c:"FU",d:"\"May the Fourth be with you\" — a pun celebrated by Star Wars fans worldwide."}],
+"05-08": [{n:"World Red Cross Day",c:"CU",d:"Marks the birthday of Henry Dunant, founder of the Red Cross movement."}],
+"05-12": [{n:"International Nurses Day",c:"CU",d:"Marks the birthday of Florence Nightingale, founder of modern nursing."}],
+"05-15": [{n:"International Day of Families",c:"UN"}],
+"05-16": [{n:"International Day of Living Together in Peace",c:"UN"},{n:"International Day of Light",c:"UN"}],
+"05-17": [{n:"World Telecommunication and Information Society Day",c:"UN"}],
+"05-20": [{n:"World Bee Day",c:"UN"}],
+"05-21": [{n:"World Tea Day",c:"UN"},{n:"World Day for Cultural Diversity for Dialogue and Development",c:"UN"}],
+"05-22": [{n:"International Day for Biological Diversity",c:"UN"}],
+"05-25": [{n:"Towel Day",c:"FU",d:"A tribute to author Douglas Adams and The Hitchhiker's Guide to the Galaxy."},{n:"Africa Day",c:"CU"}],
+"05-29": [{n:"International Day of UN Peacekeepers",c:"UN"}],
+"05-31": [{n:"World No Tobacco Day",c:"UN"}],
+"06-01": [{n:"Global Day of Parents",c:"UN"}],
+"06-03": [{n:"World Bicycle Day",c:"UN"}],
+"06-04": [{n:"International Day of Innocent Children Victims of Aggression",c:"UN"}],
+"06-05": [{n:"World Environment Day",c:"UN"}],
+"06-07": [{n:"World Food Safety Day",c:"UN"}],
+"06-08": [{n:"World Oceans Day",c:"UN"}],
+"06-12": [{n:"World Day Against Child Labour",c:"UN"}],
+"06-14": [{n:"World Blood Donor Day",c:"UN"}],
+"06-15": [{n:"World Elder Abuse Awareness Day",c:"UN"}],
+"06-16": [{n:"Bloomsday",c:"FU",d:"Celebrates James Joyce's novel Ulysses, set on this date in 1904."}],
+"06-17": [{n:"World Day to Combat Desertification and Drought",c:"UN"}],
+"06-18": [{n:"Sustainable Gastronomy Day",c:"UN"}],
+"06-20": [{n:"World Refugee Day",c:"UN"}],
+"06-21": [{n:"International Day of Yoga",c:"UN"},{n:"World Music Day",c:"CU",d:"Known as Fête de la Musique, started in France and now celebrated globally."}],
+"06-23": [{n:"United Nations Public Service Day",c:"UN"},{n:"International Widows' Day",c:"UN"}],
+"06-26": [{n:"International Day Against Drug Abuse and Illicit Trafficking",c:"UN"}],
+"06-27": [{n:"Micro-, Small and Medium-sized Enterprises Day",c:"UN"},{n:"International Pineapple Day",c:"FU"}],
+"06-29": [{n:"International Day of the Tropics",c:"UN"}],
+"06-30": [{n:"International Asteroid Day",c:"UN",d:"Marks the 1908 Tunguska event and raises awareness of asteroid-impact hazards."},{n:"International Day of Parliamentarism",c:"UN"}],
+"07-01": [{n:"National Doctors' Day",c:"IN"}],
+"07-11": [{n:"World Population Day",c:"UN"}],
+"07-15": [{n:"World Youth Skills Day",c:"UN"}],
+"07-17": [{n:"World Emoji Day",c:"FU"}],
+"07-18": [{n:"Nelson Mandela International Day",c:"UN",d:"Marks Mandela's birthday and encourages 67 minutes of community service."}],
+"07-26": [{n:"Kargil Vijay Diwas",c:"IN",d:"Commemorates India's victory in the 1999 Kargil War."}],
+"07-28": [{n:"World Hepatitis Day",c:"UN"}],
+"07-30": [{n:"International Day of Friendship",c:"UN"},{n:"World Day against Trafficking in Persons",c:"UN"}],
+"08-09": [{n:"International Day of the World's Indigenous Peoples",c:"UN"}],
+"08-12": [{n:"International Youth Day",c:"UN"}],
+"08-15": [{n:"Independence Day",c:"IN",d:"Marks India's independence from British rule in 1947."}],
+"08-19": [{n:"World Humanitarian Day",c:"UN"},{n:"World Photography Day",c:"CU"}],
+"08-21": [{n:"International Day of Remembrance and Tribute to the Victims of Terrorism",c:"UN"}],
+"08-23": [{n:"International Day for the Remembrance of the Slave Trade and Its Abolition",c:"UN"}],
+"08-26": [{n:"International Dog Day",c:"FU"}],
+"08-29": [{n:"International Day against Nuclear Tests",c:"UN"}],
+"08-30": [{n:"International Day of the Victims of Enforced Disappearances",c:"UN"}],
+"09-05": [{n:"International Day of Charity",c:"UN"},{n:"Teachers' Day",c:"IN",d:"India honours Dr. Sarvepalli Radhakrishnan's birthday."}],
+"09-08": [{n:"International Literacy Day",c:"UN"}],
+"09-10": [{n:"World Suicide Prevention Day",c:"UN"}],
+"09-14": [{n:"Hindi Diwas",c:"IN"}],
+"09-15": [{n:"International Day of Democracy",c:"UN"},{n:"Engineer's Day",c:"IN",d:"Marks the birth anniversary of Sir M. Visvesvaraya."}],
+"09-16": [{n:"International Day for the Preservation of the Ozone Layer",c:"UN"}],
+"09-19": [{n:"International Talk Like a Pirate Day",c:"FU"}],
+"09-21": [{n:"International Day of Peace",c:"UN"}],
+"09-23": [{n:"International Day of Sign Languages",c:"UN"}],
+"09-26": [{n:"International Day for the Total Elimination of Nuclear Weapons",c:"UN"}],
+"09-27": [{n:"World Tourism Day",c:"UN"}],
+"09-28": [{n:"World Rabies Day",c:"UN"},{n:"International Day for Universal Access to Information",c:"UN"}],
+"09-30": [{n:"International Translation Day",c:"UN"}],
+"10-01": [{n:"International Day of Older Persons",c:"UN"}],
+"10-02": [{n:"International Day of Non-Violence",c:"UN",d:"Marks the birthday of Mahatma Gandhi (also Gandhi Jayanti in India)."}],
+"10-04": [{n:"World Animal Day",c:"FU"}],
+"10-05": [{n:"World Teachers' Day",c:"UN"}],
+"10-09": [{n:"World Post Day",c:"UN"}],
+"10-10": [{n:"World Mental Health Day",c:"UN"}],
+"10-11": [{n:"International Day of the Girl Child",c:"UN"}],
+"10-13": [{n:"International Day for Disaster Reduction",c:"UN"}],
+"10-15": [{n:"International Day of Rural Women",c:"UN"},{n:"Global Handwashing Day",c:"UN"}],
+"10-16": [{n:"World Food Day",c:"UN"}],
+"10-17": [{n:"International Day for the Eradication of Poverty",c:"UN"}],
+"10-23": [{n:"Mole Day",c:"FU",d:"6:02 on 10/23, a nod to Avogadro's number (6.02 ×10²³), celebrated by chemistry fans."}],
+"10-24": [{n:"United Nations Day",c:"UN"},{n:"World Development Information Day",c:"UN"}],
+"10-27": [{n:"World Day for Audiovisual Heritage",c:"UN"}],
+"10-30": [{n:"Mischief Night",c:"FU"}],
+"10-31": [{n:"World Cities Day",c:"UN"},{n:"Halloween",c:"CU"},{n:"National Unity Day",c:"IN",d:"Marks the birth anniversary of Sardar Vallabhbhai Patel."}],
+"11-02": [{n:"International Day to End Impunity for Crimes against Journalists",c:"UN"}],
+"11-05": [{n:"World Tsunami Awareness Day",c:"UN"}],
+"11-10": [{n:"World Science Day for Peace and Development",c:"UN"}],
+"11-14": [{n:"World Diabetes Day",c:"UN"},{n:"Children's Day",c:"IN",d:"India marks Pandit Jawaharlal Nehru's birthday."}],
+"11-16": [{n:"International Day for Tolerance",c:"UN"}],
+"11-19": [{n:"World Toilet Day",c:"UN"},{n:"International Men's Day",c:"CU"}],
+"11-20": [{n:"Universal Children's Day",c:"UN"},{n:"Africa Industrialization Day",c:"UN"}],
+"11-21": [{n:"World Television Day",c:"UN"}],
+"11-25": [{n:"International Day for the Elimination of Violence against Women",c:"UN"}],
+"11-26": [{n:"Constitution Day",c:"IN",d:"Marks the adoption of the Indian Constitution in 1949."}],
+"11-29": [{n:"International Day of Solidarity with the Palestinian People",c:"UN"}],
+"12-01": [{n:"World AIDS Day",c:"UN"}],
+"12-02": [{n:"International Day for the Abolition of Slavery",c:"UN"}],
+"12-03": [{n:"International Day of Persons with Disabilities",c:"UN"}],
+"12-05": [{n:"International Volunteer Day",c:"UN"},{n:"World Soil Day",c:"UN"}],
+"12-07": [{n:"International Civil Aviation Day",c:"UN"},{n:"Armed Forces Flag Day",c:"IN"}],
+"12-09": [{n:"International Day of Commemoration of Genocide Victims",c:"UN"},{n:"International Anti-Corruption Day",c:"UN"}],
+"12-10": [{n:"Human Rights Day",c:"UN"}],
+"12-11": [{n:"International Mountain Day",c:"UN"}],
+"12-14": [{n:"Monkey Day",c:"FU"}],
+"12-18": [{n:"International Migrants Day",c:"UN"}],
+"12-20": [{n:"International Human Solidarity Day",c:"UN"}],
+"12-23": [{n:"Festivus",c:"FU",d:"A faux holiday popularised by the sitcom Seinfeld."}],
+"12-24": [{n:"Christmas Eve",c:"CU"}],
+"12-25": [{n:"Christmas Day",c:"CU"},{n:"Good Governance Day",c:"IN",d:"Marks the birth anniversary of former PM Atal Bihari Vajpayee."}],
+"12-31": [{n:"New Year's Eve",c:"CU"}]
+};
+
+const FLOATING_DAYS = [
+  {month:1, weekday:1, nth:3, n:"Martin Luther King Jr. Day", c:"CU", d:"US federal holiday honouring the civil-rights leader."},
+  {month:1, weekday:0, nth:3, n:"World Religion Day", c:"UN"},
+  {month:5, weekday:0, nth:2, n:"Mother's Day", c:"CU"},
+  {month:5, weekday:5, nth:1, n:"No Pants Day", c:"FU"},
+  {month:5, weekday:4, nth:3, n:"Global Accessibility Awareness Day", c:"UN"},
+  {month:6, weekday:0, nth:3, n:"Father's Day", c:"CU"},
+  {month:7, weekday:6, nth:1, n:"International Day of Cooperatives", c:"UN"},
+  {month:8, weekday:0, nth:1, n:"Friendship Day", c:"CU", d:"Widely observed in India and several other countries on the first Sunday of August."},
+  {month:9, weekday:4, nth:-1, n:"World Maritime Day", c:"UN"},
+  {month:9, weekday:6, nth:3, n:"World Cleanup Day", c:"UN"},
+  {month:10, weekday:1, nth:1, n:"World Habitat Day", c:"UN"},
+  {month:10, weekday:6, nth:3, n:"Sweetest Day", c:"FU"},
+  {month:11, weekday:4, nth:3, n:"World Philosophy Day", c:"UN"},
+  {month:11, weekday:0, nth:3, n:"World Day of Remembrance for Road Traffic Victims", c:"UN"},
+  {month:11, weekday:4, nth:4, n:"Thanksgiving Day (US)", c:"CU"}
+];
+
+// ============== APP LOGIC ==============
+const pad = n => String(n).padStart(2,'0');
+const MONTHS = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+const MONTHS_FULL = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const WEEKDAYS_FULL = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
+let current = startOfDay(new Date());
+let activeCats = new Set(["UN","IN","CU","FU"]);
+
+function startOfDay(d){
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+function keyFor(date){
+  return pad(date.getMonth()+1) + "-" + pad(date.getDate());
+}
+function isSameDay(a,b){
+  return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
+}
+function nthWeekdayOfMonth(year, monthIndex, weekday, nth){
+  // monthIndex: 0-11
+  if(nth > 0){
+    const first = new Date(year, monthIndex, 1);
+    const offset = (weekday - first.getDay() + 7) % 7;
+    return new Date(year, monthIndex, 1 + offset + (nth-1)*7);
+  } else {
+    const lastDay = new Date(year, monthIndex+1, 0);
+    const offset = (lastDay.getDay() - weekday + 7) % 7;
+    return new Date(year, monthIndex+1, 0 - offset);
+  }
+}
+function getFloatingForDate(date){
+  const out = [];
+  FLOATING_DAYS.forEach(rule => {
+    const monthIndex = rule.month - 1;
+    if(date.getMonth() !== monthIndex) return;
+    const computed = nthWeekdayOfMonth(date.getFullYear(), monthIndex, rule.weekday, rule.nth);
+    if(isSameDay(computed, date)){
+      out.push({n:rule.n, c:rule.c, d:rule.d});
+    }
+  });
+  return out;
+}
+function getEntriesForDate(date){
+  const fixed = FIXED_DAYS[keyFor(date)] || [];
+  const floating = getFloatingForDate(date);
+  return fixed.concat(floating);
+}
+function dayOfYear(date){
+  const start = new Date(date.getFullYear(), 0, 1);
+  return Math.floor((date - start) / 86400000) + 1;
+}
+function isLeap(y){ return (y%4===0 && y%100!==0) || y%400===0; }
+
+function render(){
+  const entries = getEntriesForDate(current);
+  const filtered = entries.filter(e => activeCats.has(e.c));
+
+  // Postmark
+  document.getElementById('dayNum').textContent = pad(current.getDate());
+  document.getElementById('monthYear').textContent = MONTHS[current.getMonth()] + " " + current.getFullYear();
+  document.getElementById('arcTopText').textContent = WEEKDAYS_FULL[current.getDay()].toUpperCase();
+  document.getElementById('arcBottomText').textContent = isSameDay(current, startOfDay(new Date())) ? "TODAY'S SPECIAL" : "ON THIS DAY";
+
+  // Strip
+  const total = isLeap(current.getFullYear()) ? 366 : 365;
+  const doy = dayOfYear(current);
+  document.getElementById('yearStrip').innerHTML =
+    'Day <b>' + doy + '</b> of <b>' + total + '</b> &nbsp;·&nbsp; <b>' + (total - doy) + '</b> days left in ' + current.getFullYear();
+
+  // Date input + today button
+  document.getElementById('dateInput').value = current.getFullYear() + '-' + pad(current.getMonth()+1) + '-' + pad(current.getDate());
+  document.getElementById('todayBtn').style.display = isSameDay(current, startOfDay(new Date())) ? 'none' : 'inline-block';
+
+  // Cards
+  const cardsEl = document.getElementById('cards');
+  cardsEl.innerHTML = '';
+  if(entries.length === 0){
+    cardsEl.innerHTML = '<div class="empty-card">No catalogued special found for <b>' + MONTHS_FULL[current.getMonth()] + ' ' + current.getDate() + '</b> yet. <br>Ask Claude to look one up and add it to the almanac.</div>';
+  } else if(filtered.length === 0){
+    cardsEl.innerHTML = '<div class="empty-card">There are specials today, but none match your current filter.</div>';
+  } else {
+    filtered.forEach(e => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML =
+        '<div class="card-top"><div class="card-name">' + e.n + '</div>' +
+        '<div class="tag ' + e.c + '">' + catLabel(e.c) + '</div></div>' +
+        (e.d ? '<div class="card-desc">' + e.d + '</div>' : '');
+      cardsEl.appendChild(card);
+    });
+  }
+}
+function catLabel(c){
+  return {UN:"Intl", IN:"India", CU:"Cultural", FU:"Fun"}[c] || c;
+}
+
+// ---- events ----
+document.getElementById('prevBtn').addEventListener('click', () => {
+  current = new Date(current.getFullYear(), current.getMonth(), current.getDate()-1);
+  render();
+});
+document.getElementById('nextBtn').addEventListener('click', () => {
+  current = new Date(current.getFullYear(), current.getMonth(), current.getDate()+1);
+  render();
+});
+document.getElementById('todayBtn').addEventListener('click', () => {
+  current = startOfDay(new Date());
+  render();
+});
+document.getElementById('dateInput').addEventListener('change', (ev) => {
+  const v = ev.target.value;
+  if(!v) return;
+  const [y,m,d] = v.split('-').map(Number);
+  current = new Date(y, m-1, d);
+  render();
+});
+document.getElementById('chips').addEventListener('click', (ev) => {
+  const chip = ev.target.closest('.chip');
+  if(!chip) return;
+  const cat = chip.getAttribute('data-cat');
+  if(cat === 'ALL'){
+    activeCats = new Set(["UN","IN","CU","FU"]);
+  } else {
+    if(activeCats.has(cat) && activeCats.size === 1){
+      // don't allow zero categories; treat as reset to all
+      activeCats = new Set(["UN","IN","CU","FU"]);
+    } else if(activeCats.has(cat)){
+      activeCats.delete(cat);
+    } else {
+      activeCats.add(cat);
+    }
+  }
+  document.querySelectorAll('.chip').forEach(c => {
+    const cc = c.getAttribute('data-cat');
+    const isAll = cc === 'ALL';
+    c.setAttribute('data-active', isAll ? (activeCats.size===4 ? 'true':'false') : activeCats.has(cc));
+  });
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
